@@ -10,8 +10,17 @@ const registerChatSocket = require("./sockets/chatSocket");
 connectDB();
 
 const app = express();
-const frontendOrigin = process.env.FRONTEND_URL || "*";
-app.use(cors({ origin: frontendOrigin }));
+const configuredFrontendOrigin = process.env.FRONTEND_URL || "*";
+const allowedOrigins = configuredFrontendOrigin === "*"
+  ? "*"
+  : configuredFrontendOrigin.split(",").map((origin) => origin.trim());
+const isAllowedOrigin = (origin, callback) => {
+  if (!origin || allowedOrigins === "*" || allowedOrigins.includes(origin)) {
+    return callback(null, true);
+  }
+  return callback(new Error("CORS origin not allowed"));
+};
+app.use(cors({ origin: isAllowedOrigin }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -24,7 +33,7 @@ app.use("/api/auth", authRoutes);
 const httpServer = http.createServer(app);
 
 const io = new Server(httpServer, {
-  cors: { origin: frontendOrigin },
+  cors: { origin: isAllowedOrigin },
 });
 
 registerChatSocket(io);

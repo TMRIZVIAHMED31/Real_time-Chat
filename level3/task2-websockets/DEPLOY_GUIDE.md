@@ -117,15 +117,15 @@ After Vercel gives you the frontend URL:
 
 1. Open the backend service in Render.
 2. Open **Environment**.
-3. Change the variable to your real Vercel URL:
+3. Change the variable to the exact HTTPS URL shown in Vercel:
 
 ```text
-FRONTEND_URL=https://realtime-chat.vercel.app
+FRONTEND_URL=https://real-time-chat-phi-one.vercel.app
 ```
 
 4. Save the changes and redeploy the service.
 
-This value must match the Vercel URL exactly. Do not add a trailing slash.
+This value must match the Vercel HTTPS URL exactly. Do not use `http://` and do not add a trailing slash. Save the changes and redeploy the backend.
 
 ## 7. Test the deployed application
 
@@ -146,7 +146,7 @@ Open the Vercel URL and check the following:
 | Problem | Fix |
 |---|---|
 | Frontend still calls localhost | Update `BACKEND_URL` in `frontend/script.js`, commit, and push. |
-| CORS error | Set Render `FRONTEND_URL` to the exact Vercel URL and redeploy. |
+| `NetworkError` or CORS error | Set Render `FRONTEND_URL` to the exact HTTPS Vercel URL, then redeploy. Do not use the HTTP URL. |
 | Socket.io connection fails | Check that the frontend uses the Render URL and that Render is running. |
 | MongoDB connection error | Check `MONGO_URI` and the Atlas IP access list. |
 | Render service crashes | Check Render logs and confirm `npm install` and `npm start` are configured. |
