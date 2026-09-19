@@ -1,4 +1,4 @@
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "https://real-time-chat-da7o.onrender.com";
 const API_URL = `${BACKEND_URL}/api/auth`;
 const ROOM = "general";
 
