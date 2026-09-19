@@ -117,7 +117,7 @@ After Vercel gives you the frontend URL:
 
 1. Open the backend service in Render.
 2. Open **Environment**.
-3. Change the variable to the exact HTTPS URL shown in Vercel:
+3. Change the variable to the exact HTTPS URL shown in Vercel. Include `https://`:
 
 ```text
 FRONTEND_URL=https://real-time-chat-phi-one.vercel.app
@@ -126,6 +126,8 @@ FRONTEND_URL=https://real-time-chat-phi-one.vercel.app
 4. Save the changes and redeploy the service.
 
 This value must match the Vercel HTTPS URL exactly. Do not use `http://` and do not add a trailing slash. Save the changes and redeploy the backend.
+
+Also replace `JWT_SECRET=replace_this_with_a_long_random_string` with a long private random value. Do not leave the placeholder in Render.
 
 ## 7. Test the deployed application
 

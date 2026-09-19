@@ -13,7 +13,13 @@ const app = express();
 const configuredFrontendOrigin = process.env.FRONTEND_URL || "*";
 const allowedOrigins = configuredFrontendOrigin === "*"
   ? "*"
-  : configuredFrontendOrigin.split(",").map((origin) => origin.trim());
+  : configuredFrontendOrigin.split(",").map((origin) => {
+      const trimmedOrigin = origin.trim();
+      const originWithProtocol = /^https?:\/\//i.test(trimmedOrigin)
+        ? trimmedOrigin
+        : `https://${trimmedOrigin}`;
+      return originWithProtocol.replace(/\/+$/, "");
+    });
 const isAllowedOrigin = (origin, callback) => {
   if (!origin || allowedOrigins === "*" || allowedOrigins.includes(origin)) {
     return callback(null, true);
