@@ -13,6 +13,7 @@ const tabSignup = document.getElementById("tab-signup");
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");
 const authError = document.getElementById("auth-error");
+const serverStatus = document.getElementById("server-status");
 const messagesEl = document.getElementById("messages");
 const messageForm = document.getElementById("message-form");
 const messageInput = document.getElementById("message-input");
@@ -20,6 +21,24 @@ const meLabel = document.getElementById("me-label");
 const onlineUsersEl = document.getElementById("online-users");
 const typingEl = document.getElementById("typing-indicator");
 const logoutBtn = document.getElementById("logout-btn");
+
+// Start waking a sleeping host while the user is entering their credentials.
+fetch(BACKEND_URL)
+  .then((res) => {
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+    serverStatus.textContent = "Chat server is ready.";
+  })
+  .catch(() => {
+    serverStatus.textContent =
+      "The server may be waking up. Your first sign-in can take a little longer.";
+  });
+
+function setFormPending(form, pending, label) {
+  const button = form.querySelector('button[type="submit"]');
+  if (!button.dataset.defaultLabel) button.dataset.defaultLabel = button.textContent;
+  button.disabled = pending;
+  button.textContent = pending ? label : button.dataset.defaultLabel;
+}
 
 // --- Tab switching ---
 tabLogin.addEventListener("click", () => {
@@ -38,6 +57,7 @@ tabSignup.addEventListener("click", () => {
 // --- Auth: login ---
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  setFormPending(loginForm, true, "Logging in...");
   authError.textContent = "";
   authError.classList.remove("success");
   authError.classList.add("error");
@@ -49,17 +69,26 @@ loginForm.addEventListener("submit", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
+    const contentType = res.headers.get("content-type") || "";
+    const json = contentType.includes("application/json") ? await res.json() : null;
+    if (!res.ok || !json?.success) {
+      throw new Error(json?.message || `Login failed (${res.status})`);
+    }
     startChat(json.token, json.user);
   } catch (err) {
-    authError.textContent = err.message;
+    authError.textContent =
+      err instanceof TypeError
+        ? "Unable to reach the server. Please try again."
+        : err.message;
+  } finally {
+    setFormPending(loginForm, false);
   }
 });
 
 // --- Auth: signup ---
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  setFormPending(signupForm, true, "Creating account...");
   authError.textContent = "";
   authError.classList.remove("success");
   authError.classList.add("error");
@@ -72,16 +101,19 @@ signupForm.addEventListener("submit", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
     });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    document.getElementById("login-email").value = email;
-    document.getElementById("login-password").value = "";
-    authError.textContent = "Account created successfully. Please log in.";
-    authError.classList.remove("error");
-    authError.classList.add("success");
-    tabLogin.click();
+    const contentType = res.headers.get("content-type") || "";
+    const json = contentType.includes("application/json") ? await res.json() : null;
+    if (!res.ok || !json?.success) {
+      throw new Error(json?.message || `Signup failed (${res.status})`);
+    }
+    startChat(json.token, json.user);
   } catch (err) {
-    authError.textContent = err.message;
+    authError.textContent =
+      err instanceof TypeError
+        ? "Unable to reach the server. Please try again."
+        : err.message;
+  } finally {
+    setFormPending(signupForm, false);
   }
 });
 

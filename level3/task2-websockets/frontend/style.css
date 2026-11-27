@@ -52,6 +52,12 @@ button[type="submit"] {
 
 .error { color: #f87171; font-size: 14px; }
 .success { color: #4ade80; font-size: 14px; }
+#server-status { color: #94a3b8; font-size: 13px; min-height: 18px; }
+
+button[type="submit"]:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
 
 #chat-screen { width: 100%; max-width: 640px; }
 #chat-screen header {
