@@ -106,7 +106,13 @@ signupForm.addEventListener("submit", async (e) => {
     if (!res.ok || !json?.success) {
       throw new Error(json?.message || `Signup failed (${res.status})`);
     }
-    startChat(json.token, json.user);
+    document.getElementById("login-email").value = email;
+    document.getElementById("login-password").value = "";
+    signupForm.reset();
+    tabLogin.click();
+    authError.textContent = "Account created successfully. Please log in.";
+    authError.classList.remove("error");
+    authError.classList.add("success");
   } catch (err) {
     authError.textContent =
       err instanceof TypeError
